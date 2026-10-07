@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Fashion Glam Stylee{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Elegant Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Jost', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f9f9f9',
+                            100: '#e5e5e5',
+                            900: '#111111',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Jost', sans-serif;
+            background-color: #ffffff;
+            color: #111111;
+        }
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+        }
+        .nav-link {
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: currentColor;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+        <!-- Top bar -->
+        <div class="bg-black text-white text-xs text-center py-2 tracking-widest uppercase">
+            Envío gratuito en tu primera compra
+        </div>
+        
+        <!-- Main Navbar -->
+        <div class="bg-white bg-opacity-95 shadow-sm border-b border-gray-200 relative z-50">
+            <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+                    <!-- Left: Hamburger & Menu -->
+                    <div class="flex items-center space-x-6">
+                        <button id="mobile-menu-button" class="md:hidden text-black hover:text-gray-600 focus:outline-none">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                        <div class="hidden md:flex space-x-8">
+                            <a href="#" class="nav-link font-medium">Accesorios</a>
+                            <a href="{% url 'catalog:category' 'mujer' %}" class="nav-link font-medium">Mujer</a>
+                            <a href="{% url 'catalog:category' 'hombre' %}" class="nav-link font-medium">Hombre</a>
+                        </div>
+                    </div>
+
+                    <!-- Center: Logo -->
+                    <div class="flex-shrink-0 flex items-center justify-center">
+                        <a href="/">
+                            <img src="{% static 'img/logo.png' %}" alt="Fashion Glam Stylee" class="h-16 md:h-20 object-contain">
+                        </a>
+                    </div>
+
+                    <!-- Right: Search, Account, Cart -->
+                    <div class="flex items-center space-x-5">
+                        <a href="#" class="text-black hover:text-gray-600 flex items-center space-x-1">
+                            <span class="hidden md:inline nav-link">Bolsa</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden bg-white w-full border-b border-gray-200 shadow-md">
+            <div class="px-4 pt-2 pb-6 space-y-3 flex flex-col text-center">
+                <a href="#" class="block uppercase tracking-widest text-sm py-2 border-b border-gray-100">Accesorios</a>
+                <a href="{% url 'catalog:category' 'mujer' %}" class="block uppercase tracking-widest text-sm py-2 border-b border-gray-100">Mujer</a>
+                <a href="{% url 'catalog:category' 'hombre' %}" class="block uppercase tracking-widest text-sm py-2 border-b border-gray-100">Hombre</a>
+                <a href="{% url 'tracking:track' %}" class="block uppercase tracking-widest text-sm py-2">Seguimiento de Pedido</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-28">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white mt-auto py-16">
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div>
+                <img src="{% static 'img/logo.png' %}" alt="Fashion Glam Stylee" class="h-16 mb-4 filter invert opacity-90 object-contain">
+                <p class="text-xs text-gray-400 leading-relaxed mb-4">
+                    La mejor selección de marcas internacionales directo a tu puerta.
+                </p>
+                <a href="https://www.instagram.com/fashion_glam_stylee" target="_blank" class="text-xs uppercase tracking-widest hover:text-gray-300">
+                    Síguenos en Instagram
+                </a>
+            </div>
+            
+            <div>
+                <h4 class="text-sm tracking-widest uppercase mb-6">Cómo Comprar</h4>
+                <ul class="space-y-4 text-xs text-gray-400">
+                    <li><strong class="text-white">Pagos:</strong> Transferencia, Efectivo, Débito o Crédito.</li>
+                    <li><strong class="text-white">Condiciones:</strong> Pago completo previo envío. Sin cambios ni devoluciones.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm tracking-widest uppercase mb-6">Envíos</h4>
+                <ul class="space-y-4 text-xs text-gray-400">
+                    <li><strong class="text-white">Santiago:</strong> Delivery $3.500 (Excepto comunas rurales). <br><span class="text-white font-medium">¡Primer envío GRATIS!</span></li>
+                    <li><strong class="text-white">Regiones:</strong> Envíos a todo Chile por Starken y Blue Express.</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 class="text-sm tracking-widest uppercase mb-6">Soporte</h4>
+                <ul class="space-y-4 text-xs text-gray-400">
+                    <li><a href="{% url 'tracking:track' %}" class="hover:text-white transition">Seguimiento de Pedido</a></li>
+                    <li><a href="#" class="hover:text-white transition">Contacto vía WhatsApp</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
+            &copy; 2026 Fashion Glam Stylee.
+        </div>
+    </footer>
+
+    <script>
+        // Toggle mobile menu
+        const btn = document.getElementById('mobile-menu-button');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Seguimiento | Fashion Glam Stylee{% endblock %}
+
+{% block content %}
+<div class="max-w-screen-md mx-auto px-4 sm:px-6 py-24 min-h-[70vh]">
+    <div class="text-center mb-16">
+        <h1 class="hero-title text-4xl mb-2">Trazabilidad de Pedido</h1>
+        <div class="w-12 h-px bg-black mx-auto mt-6"></div>
+    </div>
+
+    {% if error %}
+    <div class="bg-red-50 text-red-600 border border-red-200 p-4 mb-8 text-sm text-center">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if not order %}
+    <div class="max-w-md mx-auto">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Código de Seguimiento</label>
+                <input type="text" name="tracking_code" required class="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-black transition-colors bg-transparent" placeholder="Ej. A1B2C3D4">
+            </div>
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Email o Teléfono asociado</label>
+                <input type="text" name="contact" required class="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-black transition-colors bg-transparent">
+            </div>
+            
+            <button type="submit" class="w-full bg-black text-white py-4 text-sm uppercase tracking-widest hover:bg-gray-800 transition duration-300">
+                Consultar Estado
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div class="bg-white p-8 border border-gray-200 shadow-sm max-w-2xl mx-auto">
+        <div class="mb-8 border-b border-gray-100 pb-8 text-center">
+            <p class="text-xs tracking-widest text-gray-500 uppercase mb-2">Pedido #{{ order.tracking_code }}</p>
+            <h2 class="text-2xl mb-1">Estado Actual: 
+                <span class="font-medium 
+                    {% if order.status == 'RECEIVED' %}text-gray-600
+                    {% elif order.status == 'PREPARING' %}text-blue-600
+                    {% elif order.status == 'DISPATCHED' %}text-orange-600
+                    {% elif order.status == 'DELIVERED' %}text-green-600
+                    {% endif %}
+                ">
+                    {{ order.get_status_display }}
+                </span>
+            </h2>
+            <p class="text-sm text-gray-400 mt-2">Última actualización: {{ order.updated_at|date:"d M Y, H:i" }}</p>
+        </div>
+
+        <div>
+            <h4 class="text-xs uppercase tracking-wider text-gray-500 mb-4">Detalles del Cliente</h4>
+            <p class="text-sm"><strong>Nombre:</strong> {{ order.customer_name }}</p>
+            <p class="text-sm"><strong>Contacto:</strong> {{ order.customer_email }} / {{ order.customer_phone }}</p>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="{% url 'tracking:track' %}" class="text-sm border-b border-black pb-1 uppercase tracking-widest">Consultar otro pedido</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

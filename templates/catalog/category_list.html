@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Colección {{ category.name }} | Fashion Glam Stylee{% endblock %}
+
+{% block content %}
+<div class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 min-h-[70vh]">
+    <div class="text-center mb-16">
+        <h1 class="hero-title text-4xl mb-2">{{ category.name }}</h1>
+        <p class="text-gray-500 text-sm tracking-widest uppercase">Colección Exclusiva</p>
+        <div class="w-12 h-px bg-black mx-auto mt-6"></div>
+    </div>
+
+    {% if products %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        {% for product in products %}
+        <a href="{% url 'catalog:product_detail' product.slug %}" class="group relative cursor-pointer overflow-hidden aspect-[3/4] bg-gray-100 block">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
+            {% else %}
+                <!-- Fallback elegant images -->
+                <img 
+                    {% if 'Calvin' in product.brand %}
+                        src="https://images.unsplash.com/photo-1618932260643-98a0024441e4?q=80&w=1964&auto=format&fit=crop"
+                    {% else %}
+                        src="https://images.unsplash.com/photo-1550246140-5119ae4790b8?q=80&w=2070&auto=format&fit=crop"
+                    {% endif %}
+                    alt="{{ product.name }}" 
+                    class="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+                >
+            {% endif %}
+            
+            <div class="absolute bottom-6 left-0 w-full text-center bg-gradient-to-t from-black/50 to-transparent pt-10">
+                <span class="text-white text-xs tracking-widest uppercase block mb-1 drop-shadow-md">{{ product.brand }}</span>
+                <h3 class="text-white text-lg font-medium tracking-wider mb-2 drop-shadow-md">{{ product.name }}</h3>
+                <span class="nav-link text-white text-sm">Explorar</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-20 text-gray-500">
+        <p>Aún no hay productos en esta colección.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
