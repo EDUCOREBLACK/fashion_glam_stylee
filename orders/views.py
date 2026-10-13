@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.conf import settings
 from catalog.models import Product
 from .models import Order, OrderItem
 import urllib.parse
@@ -10,10 +11,25 @@ def checkout_product(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
     
     if request.method == 'POST':
+        if not settings.WHATSAPP_PHONE_NUMBER:
+            return render(request, 'orders/checkout.html', {
+                'product': product,
+                'error': 'La tienda aún no ha configurado su número de WhatsApp. Inténtalo más tarde.',
+            })
+
         customer_name = request.POST.get('customer_name')
         customer_email = request.POST.get('customer_email')
         customer_phone = request.POST.get('customer_phone')
-        quantity = int(request.POST.get('quantity', 1))
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+        except (TypeError, ValueError):
+            quantity = 0
+
+        if quantity < 1:
+            return render(request, 'orders/checkout.html', {
+                'product': product,
+                'error': 'La cantidad debe ser al menos 1.',
+            })
         
         with transaction.atomic():
             # Lock the row for update to prevent race conditions (doble reserva)
@@ -44,7 +60,6 @@ def checkout_product(request, slug):
             locked_product.save()
             
         # Generar enlace de WhatsApp (fuera de la transacción)
-        phone_number = "56912345678" # Reemplazar con el número de la tienda
         message = f"Hola Fashion Glam Stylee! ✨\n\nQuiero confirmar mi pedido:\n"
         message += f"🛍️ Producto: {locked_product.name} ({locked_product.brand})\n"
         message += f"📦 Cantidad: {quantity}\n"
@@ -54,7 +69,7 @@ def checkout_product(request, slug):
         message += f"¿Me indican los pasos para realizar la transferencia/pago?"
         
         encoded_message = urllib.parse.quote(message)
-        whatsapp_url = f"https://wa.me/{phone_number}?text={encoded_message}"
+        whatsapp_url = f"https://wa.me/{settings.WHATSAPP_PHONE_NUMBER}?text={encoded_message}"
         
         return redirect(whatsapp_url)
         

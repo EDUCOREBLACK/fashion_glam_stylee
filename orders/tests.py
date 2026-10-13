@@ -1,10 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from catalog.models import Category, Product
 from .models import Order, OrderItem
 import urllib.parse
 from django.db import transaction
 
+@override_settings(WHATSAPP_PHONE_NUMBER='56912345678')
 class CheckoutAndWhatsAppFlowTest(TestCase):
     def setUp(self):
         self.category = Category.objects.create(name='Hombre', slug='hombre')
@@ -59,6 +60,33 @@ class CheckoutAndWhatsAppFlowTest(TestCase):
         
         # Stock no deducido y orden no creada
         self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 10)
+        self.assertEqual(Order.objects.count(), 0)
+
+    @override_settings(WHATSAPP_PHONE_NUMBER='')
+    def test_checkout_requires_configured_whatsapp_number(self):
+        response = self.client.post(self.checkout_url, {
+            'customer_name': 'Rene Villegas',
+            'customer_email': 'rene@test.com',
+            'customer_phone': '+56987654321',
+            'quantity': 1
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'no ha configurado su número de WhatsApp')
+        self.assertEqual(self.product.stock, 10)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_checkout_rejects_invalid_quantity(self):
+        response = self.client.post(self.checkout_url, {
+            'customer_name': 'Rene Villegas',
+            'customer_email': 'rene@test.com',
+            'customer_phone': '+56987654321',
+            'quantity': '-1'
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'La cantidad debe ser al menos 1.')
         self.assertEqual(self.product.stock, 10)
         self.assertEqual(Order.objects.count(), 0)
 
