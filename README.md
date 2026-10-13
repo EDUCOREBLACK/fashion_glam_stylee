@@ -29,6 +29,8 @@ Configura estas variables de entorno en el servicio (no las subas al repositorio
 - `DJANGO_ALLOWED_HOSTS`: dominios permitidos separados por comas, sin `https://`.
 - `DJANGO_CSRF_TRUSTED_ORIGINS`: orígenes completos separados por comas, por ejemplo `https://tienda.example.com`.
 - `WHATSAPP_PHONE_NUMBER`: número de la tienda en formato internacional, solo dígitos y sin `+`.
+- Si se habilitan correos, configura `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`,
+  `EMAIL_HOST_PASSWORD` y `EMAIL_USE_TLS` según el proveedor SMTP.
 
 Antes de abrir el sitio al público, ejecuta `python manage.py migrate` y
 `python manage.py collectstatic --noinput`, y crea un administrador con
