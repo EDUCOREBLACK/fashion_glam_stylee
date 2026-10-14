@@ -40,6 +40,7 @@ class CheckoutAndWhatsAppFlowTest(TestCase):
         self.assertIsNotNone(order)
         self.assertEqual(order.customer_name, 'Rene Villegas')
         self.assertTrue(order.tracking_code)
+        self.assertEqual(len(order.tracking_code), 32)
         
         # Verificar mensaje codificado de WhatsApp
         self.assertTrue(urllib.parse.quote(order.tracking_code) in response.url)
@@ -55,7 +56,7 @@ class CheckoutAndWhatsAppFlowTest(TestCase):
         
         # Verificar que vuelve al form con error
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'cantidad')
+        self.assertIn('quantity', response.context['form'].errors)
         
         # Stock no deducido y orden no creada
         self.product.refresh_from_db()
@@ -98,6 +99,6 @@ class CheckoutAndWhatsAppFlowTest(TestCase):
         })
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'La cantidad debe ser al menos 1.')
+        self.assertIn('quantity', response.context['form'].errors)
         self.assertEqual(self.product.stock, 10)
         self.assertEqual(Order.objects.count(), 0)

@@ -1,6 +1,11 @@
+from io import BytesIO
+from tempfile import TemporaryDirectory
+
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from PIL import Image
 
 from .models import Category, Product
 
@@ -64,17 +69,29 @@ class ProductAdminTest(TestCase):
         self.assertContains(response, 'id_image')
         self.assertContains(response, 'id_category')
 
-        response = self.client.post(add_url, {
-            'name': 'Producto nuevo',
-            'slug': 'producto-nuevo',
-            'brand': 'Marca',
-            'category': self.category.pk,
-            'description': 'Descripción',
-            'price': '49.99',
-            'stock': '8',
-            'gender': 'U',
-            'is_active': 'on',
-        })
+        image_data = BytesIO()
+        Image.new('RGB', (8, 8), color='red').save(image_data, format='PNG')
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            response = self.client.post(add_url, {
+                'name': 'Producto nuevo',
+                'slug': 'producto-nuevo',
+                'brand': 'Marca',
+                'category': self.category.pk,
+                'description': 'Descripción',
+                'price': '49.99',
+                'stock': '8',
+                'gender': 'U',
+                'is_active': 'on',
+                'image': SimpleUploadedFile(
+                    'producto.png',
+                    image_data.getvalue(),
+                    content_type='image/png',
+                ),
+            })
 
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(Product.objects.filter(slug='producto-nuevo').exists())
+            self.assertEqual(response.status_code, 302)
+            product = Product.objects.get(slug='producto-nuevo')
+            self.assertTrue(product.image)
+            self.assertTrue(product.image.storage.exists(product.image.name))
+            change_url = reverse('admin:catalog_product_change', args=[product.pk])
+            self.assertContains(self.client.get(change_url), product.image.name)

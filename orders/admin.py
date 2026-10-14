@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 from .models import Order, OrderItem
 
 class OrderItemInline(admin.TabularInline):
@@ -20,3 +21,9 @@ class OrderAdmin(admin.ModelAdmin):
         ('Cliente', {'fields': ['customer_name', 'customer_email', 'customer_phone']}),
     ]
     inlines = [OrderItemInline]
+
+    @admin.action(description='Marcar pedidos seleccionados en preparación')
+    def mark_as_preparing(self, request, queryset):
+        queryset.update(status='PREPARING', updated_at=timezone.now())
+
+    actions = ['mark_as_preparing']

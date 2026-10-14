@@ -5,6 +5,7 @@ from .models import Order, OrderItem
 from .forms import CheckoutForm
 import urllib.parse
 from django.db import transaction
+from django.db.models import F
 
 def checkout_product(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
@@ -28,8 +29,11 @@ def checkout_product(request, slug):
 
         with transaction.atomic():
             locked_product = Product.objects.select_for_update().get(id=product.id)
-
-            if locked_product.stock < quantity:
+            stock_reserved = Product.objects.filter(
+                id=locked_product.id,
+                stock__gte=quantity,
+            ).update(stock=F('stock') - quantity)
+            if not stock_reserved:
                 form.add_error(None, 'Stock insuficiente o acaba de agotarse.')
                 return render(request, 'orders/checkout.html', {'product': locked_product, 'form': form})
 
@@ -47,9 +51,6 @@ def checkout_product(request, slug):
                 quantity=quantity
             )
 
-            locked_product.stock -= quantity
-            locked_product.save()
-
         message = f"Hola Fashion Glam Stylee! ✨\n\nQuiero confirmar mi pedido:\n"
         message += f"🛍️ Producto: {locked_product.name} ({locked_product.brand})\n"
         message += f"📦 Cantidad: {quantity}\n"
@@ -66,4 +67,5 @@ def checkout_product(request, slug):
     return render(request, 'orders/checkout.html', {
         'product': product,
         'form': CheckoutForm(product=product),
+        'error': 'Este producto está agotado.' if product.stock < 1 else None,
     })

@@ -40,7 +40,7 @@ class TrackOrderTest(TestCase):
             'contact': 'incorrect@example.com',
         })
 
-        self.assertContains(response, 'no coinciden')
+        self.assertContains(response, 'No se encontró un pedido')
         self.assertNotContains(response, 'Camisa')
 
 # Create your tests here.

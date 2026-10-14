@@ -26,7 +26,7 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.tracking_code:
-            self.tracking_code = str(uuid.uuid4()).split('-')[0].upper()
+            self.tracking_code = uuid.uuid4().hex.upper()
         super().save(*args, **kwargs)
 
     def __str__(self):

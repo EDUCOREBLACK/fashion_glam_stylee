@@ -1,6 +1,9 @@
 from django.shortcuts import render
+from django_ratelimit.decorators import ratelimit
 from orders.models import Order
 
+
+@ratelimit(key='ip', rate='10/m', method='POST', block=True)
 def track_order(request):
     order = None
     error = None
@@ -10,13 +13,11 @@ def track_order(request):
         contact = request.POST.get('contact', '').strip()
         
         order = Order.objects.filter(tracking_code__iexact=tracking_code).first()
-        if order and contact.casefold() not in {
+        if not order or contact.casefold() not in {
             order.customer_email.casefold(),
             order.customer_phone.casefold(),
         }:
             order = None
-            error = "Los datos de contacto no coinciden con este pedido."
-        elif not order:
-            error = "Código de seguimiento no encontrado."
+            error = "No se encontró un pedido con esos datos."
             
     return render(request, 'tracking/track.html', {'order': order, 'error': error})

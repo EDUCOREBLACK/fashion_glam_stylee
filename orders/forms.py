@@ -1,5 +1,5 @@
 from django import forms
-from django.core.validators import RegexValidator
+from django.core.validators import MaxValueValidator, RegexValidator
 
 
 class CheckoutForm(forms.Form):
@@ -47,5 +47,5 @@ class CheckoutForm(forms.Form):
     def __init__(self, *args, product=None, **kwargs):
         super().__init__(*args, **kwargs)
         if product is not None:
-            self.fields['quantity'].max_value = product.stock
+            self.fields['quantity'].validators.append(MaxValueValidator(product.stock))
             self.fields['quantity'].widget.attrs['max'] = product.stock

@@ -53,14 +53,16 @@ INSTALLED_APPS = [
     'rest_framework',
     
     # Local apps
-    'catalog',
-    'orders',
-    'tracking',
+    'catalog.apps.CatalogConfig',
+    'orders.apps.OrdersConfig',
+    'tracking.apps.TrackingConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+] + ([] if DEBUG else [
     'whitenoise.middleware.WhiteNoiseMiddleware',
+]) + [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -142,7 +144,10 @@ STORAGES = {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        'BACKEND': (
+            'django.contrib.staticfiles.storage.StaticFilesStorage'
+            if DEBUG else 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+        ),
     },
 }
 
