@@ -15,6 +15,12 @@
     </div>
     {% endif %}
 
+    {% if form.non_field_errors %}
+    <div class="bg-red-50 text-red-600 border border-red-200 p-4 mb-8 text-sm text-center">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
     <div class="bg-white p-8 border border-gray-200 shadow-sm">
         <div class="flex items-center mb-8 border-b border-gray-100 pb-8">
             <div class="w-24 h-32 bg-gray-100 flex-shrink-0">
@@ -41,21 +47,28 @@
         <form method="POST" class="space-y-6">
             {% csrf_token %}
             <div>
-                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Nombre Completo</label>
-                <input type="text" name="customer_name" required class="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-black transition-colors bg-transparent">
+                <label for="{{ form.customer_name.id_for_label }}" class="block text-xs uppercase tracking-wider text-gray-500 mb-2">{{ form.customer_name.label }}</label>
+                {{ form.customer_name }}
+                {{ form.customer_name.errors }}
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Email</label>
-                    <input type="email" name="customer_email" required class="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-black transition-colors bg-transparent">
+                    <label for="{{ form.customer_email.id_for_label }}" class="block text-xs uppercase tracking-wider text-gray-500 mb-2">{{ form.customer_email.label }}</label>
+                    {{ form.customer_email }}
+                    {{ form.customer_email.errors }}
                 </div>
                 <div>
-                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Teléfono / WhatsApp</label>
-                    <input type="text" name="customer_phone" required class="w-full border-b border-gray-300 py-2 focus:outline-none focus:border-black transition-colors bg-transparent" placeholder="+569...">
+                    <label for="{{ form.customer_phone.id_for_label }}" class="block text-xs uppercase tracking-wider text-gray-500 mb-2">{{ form.customer_phone.label }}</label>
+                    {{ form.customer_phone }}
+                    {{ form.customer_phone.errors }}
                 </div>
             </div>
             
-            <input type="hidden" name="quantity" value="1">
+            <div>
+                <label for="{{ form.quantity.id_for_label }}" class="block text-xs uppercase tracking-wider text-gray-500 mb-2">{{ form.quantity.label }} (máximo {{ product.stock }})</label>
+                {{ form.quantity }}
+                {{ form.quantity.errors }}
+            </div>
 
             <div class="pt-6">
                 <p class="text-xs text-gray-400 mb-6 font-light leading-relaxed">

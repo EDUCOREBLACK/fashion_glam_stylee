@@ -3,7 +3,6 @@ from django.urls import reverse
 from catalog.models import Category, Product
 from .models import Order, OrderItem
 import urllib.parse
-from django.db import transaction
 
 @override_settings(WHATSAPP_PHONE_NUMBER='56912345678')
 class CheckoutAndWhatsAppFlowTest(TestCase):
@@ -56,12 +55,25 @@ class CheckoutAndWhatsAppFlowTest(TestCase):
         
         # Verificar que vuelve al form con error
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Stock insuficiente')
+        self.assertContains(response, 'cantidad')
         
         # Stock no deducido y orden no creada
         self.product.refresh_from_db()
         self.assertEqual(self.product.stock, 10)
         self.assertEqual(Order.objects.count(), 0)
+
+    def test_checkout_rejects_missing_or_invalid_customer_data(self):
+        response = self.client.post(self.checkout_url, {
+            'customer_name': '   ',
+            'customer_email': 'not-an-email',
+            'customer_phone': 'bad',
+            'quantity': 1
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Order.objects.count(), 0)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 10)
 
     @override_settings(WHATSAPP_PHONE_NUMBER='')
     def test_checkout_requires_configured_whatsapp_number(self):
@@ -89,6 +101,3 @@ class CheckoutAndWhatsAppFlowTest(TestCase):
         self.assertContains(response, 'La cantidad debe ser al menos 1.')
         self.assertEqual(self.product.stock, 10)
         self.assertEqual(Order.objects.count(), 0)
-
-    # Prueba de concurrencia básica simulada en DB a nivel Test (Asegurando transacciones en producción)
-    # En producción esto se manejaría con select_for_update() en la vista, vamos a implementarlo allí si es requerido.

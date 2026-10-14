@@ -13,12 +13,6 @@ def populate():
     cat_mujer, _ = Category.objects.get_or_create(name='Mujer', slug='mujer')
     cat_hombre, _ = Category.objects.get_or_create(name='Hombre', slug='hombre')
 
-    # Delete old fake products if we want a clean slate, or just add new ones.
-    from orders.models import OrderItem, Order
-    OrderItem.objects.all().delete()
-    Order.objects.all().delete()
-    Product.objects.all().delete()
-
     products = [
         {
             'name': 'Conjunto Calvin Klein Blanco',
@@ -89,9 +83,16 @@ def populate():
     ]
 
     for p_data in products:
-        Product.objects.create(**p_data)
+        image = p_data.pop('image')
+        product, created = Product.objects.get_or_create(
+            slug=p_data['slug'],
+            defaults={**p_data, 'image': image},
+        )
+        if not created and not product.image:
+            product.image = image
+            product.save(update_fields=['image'])
 
-    print("Catálogo actualizado exitosamente con las nuevas imágenes.")
+    print("Productos de muestra agregados sin eliminar ni sobrescribir pedidos existentes.")
 
 if __name__ == '__main__':
     populate()

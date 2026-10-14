@@ -21,6 +21,10 @@ from django_ratelimit.decorators import ratelimit
 from django.conf import settings
 from django.conf.urls.static import static
 
+admin.site.site_header = 'Administración de Fashion Glam Stylee'
+admin.site.site_title = 'Fashion Glam Stylee'
+admin.site.index_title = 'Gestión de la tienda'
+
 # Proteger el panel de admin contra fuerza bruta
 admin.site.login = ratelimit(key='ip', rate='5/m', method='POST', block=True)(admin.site.login)
 

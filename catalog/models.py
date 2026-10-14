@@ -9,8 +9,8 @@ class Category(models.Model):
 
 class Product(models.Model):
     GENDER_CHOICES = [
-        ('M', 'Men'),
-        ('W', 'Women'),
+        ('M', 'Hombre'),
+        ('W', 'Mujer'),
         ('U', 'Unisex')
     ]
     

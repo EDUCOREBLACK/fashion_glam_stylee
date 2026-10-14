@@ -13,7 +13,10 @@ def home(request):
 
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug, is_active=True)
-    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:3]
+    related_products = Product.objects.filter(
+        category=product.category,
+        is_active=True,
+    ).exclude(id=product.id)[:3]
     
     context = {
         'product': product,
